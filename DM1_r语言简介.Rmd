@@ -1,0 +1,246 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+
+#1. basic commands
+```{r}
+x <- c(1,3,2,5)
+x
+```
+
+```{r}
+x = c(1,6,2)
+x
+y = c(1,4,3)
+```
+
+##vector add 向量加法
+```{r}
+length(x)
+length(y) #x,y should be the same length, so that they can add
+x+y
+```
+
+##ls
+```{r}
+ls() #this function can make us know at this list of al of the objects查看所有的对象列表
+```
+
+##rm
+```{r}
+rm(x,y) #remove/delete any we don't want
+ls()
+```
+
+```{r}
+rm(list = ls()) #remove all objects at once, 同时消除所有对象
+```
+
+##matrix
+```{r}
+x = matrix(data = c(1,2,3,4), nrow = 2, ncol = 2) #data = ,nrow = ,ncol= 均为参数名
+x
+```
+
+```{r}
+x = matrix(c(1,2,3,4), 2, 2)
+x
+```
+
+```{r}
+x = matrix(c(1,2,3,4), 2, 2, byrow = TRUE) #先行后列，populate the matrix in order of the rows
+x
+```
+
+##square root, power 2
+```{r}
+sqrt(x)
+x^2
+```
+
+##rnorm() 
+默认状态下创建的标准正态随机变量均值是0，标准差是1
+```{r}
+x = rnorm(50)
+x
+y = x + rnorm(50,mean = 50,sd = .1) #the first parameter is the sample size
+y
+cor(x,y) #计算相关系数，calculate the correlation
+```
+
+##set.seed()
+代码产生相同的随机数
+set.seed( ) 括号的数只是一个编号，作为标记使用，取值可以随意；当以后需要取得与上次相同的随机数时， set.seed( ) 中填写回该值即可。
+例如 set.seed(100) 不应将括号里的数字理解成“一百”，而是应该理解成“编号为一零零的随机数发生”， 下一次再模拟可以采用二零零（200）或者（111）等不同的编号都行。
+```{r}
+set.seed(1303)
+rnorm(5)
+```
+
+
+```{r}
+set.seed(1303)
+rnorm(5)
+```
+
+```{r}
+set.seed(130)
+rnorm(5)
+```
+
+```{r}
+set.seed(100)
+rnorm(5)
+```
+
+##mean() mean, var() variance,sd() standard deviation
+```{r}
+set.seed(100)
+y = rnorm(100)
+mean(y)
+var(y)
+sqrt(var(y))
+sd(y)
+```
+
+#2. graphics
+
+```{r}
+x = rnorm(100)
+y = rnorm(100)
+plot(x,y)
+plot(x,y, xlab = "this is the x-axis", ylab = "this is the y-axis", main = "plot of x vs y")
+```
+
+##pdf() create a pdf, jpeg()
+```{r}
+pdf("Figure.pdf")
+plot(x,y,col = "green")
+dev.off() #用r创建图像的工作到此为止
+```
+
+##seq() create a sequence of numbers
+seq(a,b) a和b之间的整数向量
+seq(0,1,length = 10) 0和1之间等距的10个数的序列
+```{r}
+x= seq(1,10)
+x
+x = 1:10
+x
+x = seq(-pi, pi, length = 50)
+x
+```
+
+##sophisticated plots 等高线图
+```{r}
+y = x
+f = outer(x,y, function(x,y)cos(y)/(1+x^2))
+contour(x,y,f)
+contour(x,y,f,nlevels = 45,add = T)
+fa = (f-t(f))/2
+contour(x,y,fa,nlevels = 15)
+```
+
+##heatmap() #theta & phi 控制看图像的角度
+```{r}
+image(x,y,fa)
+persp(x,y,fa)
+persp(x,y,fa,theta = 30)
+persp(x,y,fa,theta = 30,phi = 20)
+persp(x,y,fa,theta = 30,phi = 70)
+persp(x,y,fa,theta = 30,phi = 40)
+```
+
+
+#3. indexing data
+
+```{r}
+A = matrix(1:16,4,4)
+A
+```
+
+```{r}
+A[2,3] #[row行，column列]
+```
+
+
+```{r}
+A[c(1,3),c(2,4)]
+A[1:3,2:4]
+A[1:2,]
+A[,1:2]
+A[,3:4]
+```
+
+##"-" represents that rows or columns are removed
+```{r}
+A[-c(1,3),]
+A[-c(1,3),-c(1,3,4)]
+```
+
+##dim(), the output of this function is row行 and the following is column列
+```{r}
+dim(A)
+```
+
+#4. loading data
+
+##.csv file
+```{r}
+name_data = reas.csv("data_name.csv",header = T, na.strings = "?") #header=t首行包含变量名称，na.strings 做缺失标记？
+fix(name_data) #浏览数据，view data
+```
+
+```{r}
+name_data = na.omit(name_data) #delete the null
+dim(name_data)
+names(name_data) #view the names of variables
+```
+
+#5. other graphical and numerical summaries
+
+##scatterplot from dataset, you should tell r the cols are from which dataset
+```{r}
+plot(name_data$x,name_data$y)
+attach(name_data) #tell r the cols are from "name_data" this dataset
+plot(x,y)
+```
+
+##boxplot
+直接通过plot产生
+```{r}
+plot(cylinders,x, col = 2,varwidth = T)
+```
+
+##hist()
+```{r}
+hist(x)
+hist(x,col = 2)
+```
+
+##pairs() 建立对任何指定数据集中每一对变量对散点矩阵
+```{r}
+pairs(name_data)
+pairs(~x1+x2+x3+x4+x5,y)
+```
+
+summary(),describe this dataset or parameters
+
+
+
