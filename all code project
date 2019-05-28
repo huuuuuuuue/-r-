@@ -1,3 +1,5 @@
+
+
 #1.数据导入 read data
 d=read.csv("train.csv",header = TRUE)
 dc=d[complete.cases(d),]
@@ -36,15 +38,28 @@ d_train=rbind(d0_train,d1_train,d2_train,d3_train)
 d_test=rbind(d0_test,d1_test,d2_test,d3_test)
 
 #6.分析方法
-#6-1.逻辑回归
+#6-1.逻辑回归,y值有多个的
 library(nnet)
 re_log=multinom(y~.,data=d_train)
 pred_log=predict(re_log,newdata=d_test)
 tab_log=table(d_test$y,pred_log)
-errorate_pred_log[i,]=(1-sum(diag(tab_log))/sum(tab_log))*100
+errorate_pred_log[i,]=(1-sum(diag(tab_log))/sum(tab_log))
 }
 min_pred_log = which.min(errorate_pred_log[which(rowSums(errorate_pred_log)>0),])
 pred_log_v=c(min_pred_log,errorate_pred_log[min_pred_log])
+
+#----------------------------------
+#logistic regression
+#glm.fit = glm(Purchase~.,data = Caravan,family = binomial)
+#glm.probs = predict(glm.fit, Caravan[test,], type = "response")
+#glm.pred = rep("No",1000)
+#glm.pred[glm.probs > 0.5] = "Yes"
+#table(glm.pred, test.Y)
+
+
+
+
+
 
 #-----------6-2.id3-----------
 library(rpart)
@@ -69,7 +84,7 @@ for (i in 1:9)
   re_id3_f = prune(re_id3,cp=re_id3$cptable[min,1])
   pred_id3 = predict(re_id3_f,newdata = d_test,type = "class")
   tab_id3 = table(d_test$y,pred_id3)
-  errorate_pred_id3[i,]=(1-sum(diag(tab_id3))/sum(tab_id3))*100
+  errorate_pred_id3[i,]=(1-sum(diag(tab_id3))/sum(tab_id3))
 }
 min_pred_id3 = which.min(errorate_pred_id3[which(rowSums(errorate_pred_id3)>0),])
 pred_id3_v=c(min_pred_id3,errorate_pred_id3[min_pred_id3])
@@ -97,7 +112,7 @@ for (i in 1:9)
   re_CART_f = prune(re_CART,cp=re_CART$cptable[min,1])
   pred_CART = predict(re_CART_f,newdata = d_test,type = "class")
   tab_CART = table(d_test$y,pred_CART)
-  errorate_pred_CART[i,]=(1-sum(diag(tab_CART))/sum(tab_CART))*100
+  errorate_pred_CART[i,]=(1-sum(diag(tab_CART))/sum(tab_CART))
 }
 min_pred_CART = which.min(errorate_pred_CART[which(rowSums(errorate_pred_CART)>0),])
 pred_CART_v=c(min_pred_CART,errorate_pred_CART[min_pred_CART])
@@ -125,12 +140,18 @@ for (i in 1:9)
   re_rf = randomForest(y~.,data = d_train)
   pred_rf = predict(re_rf,newdata = d_test,type="prob")
   tab_rf=table(predict(re_rf,d_test),d_test$y)
-  errorate_pred_rf[i,]=(1-sum(diag(tab_rf))/sum(tab_rf))*100
+  errorate_pred_rf[i,]=(1-sum(diag(tab_rf))/sum(tab_rf))
 }
 min_pred_rf = which.min(errorate_pred_rf[which(rowSums(errorate_pred_rf)>0),])
 pred_rf_v=c(min_pred_rf,errorate_pred_rf[min_pred_rf])
 
 #-------------6-5.KNN---------------
+
+install.packages("class")
+library(class) #knn 在class这个包里
+#knn 不需要先拟合模型-->再进行预测
+#knn算法 knn() 直接可以用来做预测
+
 errorate_pred_knn=matrix(rep(0,180),nrow=9)
 for (i in 1:9)
 {
@@ -146,21 +167,27 @@ for (i in 1:9)
   d_train=rbind(d0_train,d1_train,d2_train,d3_train)
   d_test=rbind(d0_test,d1_test,d2_test,d3_test)
   
+#knn 不需要先拟合模型-->再进行预测
+#knn算法 knn() 直接可以用来做预测
 
-  library(class)
+需要4个参数
+#1. 与训练数据相关的预测变量矩阵 training set , labeled train.X （dc_train）
+#2. 与测试数据相关的预测变量矩阵 testing set , labeled test.X  （dc_test）
+#3. 包含训练观测类标签的向量， class lable --> labeled cl = y_train, 只是一个标签而已，没有实际意义
+#4. k的值，分类器中使用的最近邻观测的数量
   
   dctrain=dc[,-21]
   dc_train=d_train[,-21]
   dc_test=d_test[,-21]
   y_train=d_train[,21]
   y_test=d_test[,21]
-  
+
   errorknn_train=c()
-  for (j in 1:20)
+  for (j in 1:20) #看k值取什么比较好
   {
     knnvalue_train = knn(train=dc_train,test=dc_test,cl=y_train,k=j,prob=TRUE,use.all = TRUE)
-    tab_knn=table(knnvalue_train,y_test)
-    errorate_pred_knn[i,j]=(1-sum(diag(tab_knn))/sum(tab_knn))*100
+    tab_knn=table(knnvalue_train,y_test)    #混淆矩阵
+    errorate_pred_knn[i,j]=(1-sum(diag(tab_knn))/sum(tab_knn))    #错误率
   }
 }
 
