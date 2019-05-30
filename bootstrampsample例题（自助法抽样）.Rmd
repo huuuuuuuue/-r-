@@ -1,0 +1,151 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+
+
+产生随机数
+```{r}
+library("MASS")
+n=100
+mu1 = c(0,0)
+sigma1 = matrix(c(1,0.5,0.5,1.25),nrow = 2)
+rand1 = mvrnorm(n=100,mu=mu1,Sigma=sigma1)
+```
+
+```{r}
+X=rand1[,1]
+Y=rand1[,2]
+alpha=(var(Y)-cov(X,Y))/(var(X)+var(Y)-2*cov(X,Y))
+```
+
+
+```{r}
+for (i in 1:1000) {
+mu1 = c(0,0)
+sigma1 = matrix(c(1,0.5,0.5,1.25),nrow = 2)
+rand1 = mvrnorm(n=100,mu=mu1,Sigma=sigma1)
+X=rand1[,1]
+Y=rand1[,2]
+alpha[i]=(var(Y)-cov(X,Y))/(var(X)+var(Y)-2*cov(X,Y))
+}
+```
+
+```{r}
+mean(alpha)
+```
+
+```{r}
+sqrt(alpha)
+```
+
+
+```{r}
+sqrt(mean(alpha))
+```
+
+```{r}
+var(alpha)
+```
+
+
+有放回
+```{r}
+sample(rand1,1,replace = TRUE)
+```
+
+
+```{r}
+label=c(1:100)
+rand=cbind(rand1,label)
+for (j in 1:100) {
+lab=sample(c(1:100),1,replace = TRUE)
+ran= rand[rand$label==lab,]
+ran
+}
+```
+
+```{r}
+label = c(1:100)
+rand=cbind(rand1,label)
+lab = sample(c(1:100),1,replace = TRUE)
+ran=rand1[label==lab,]
+for(j in 1:100)
+{
+lab=sample(rand1,1,replace = TRUE)
+ran2=rand1[label==lab,]
+ran = rbind(ran,ran2)
+}
+rand1[sample(c(1:100),100,replace=TRUE),]
+sample(c(1:100),100,replace=TRUE)
+```
+
+```{r}
+alpha
+```
+
+```{r}
+label = c(1:100)
+rand=cbind(rand1,label)
+lab = sample(c(1:100),1,replace = TRUE)
+ran=rand1[label==lab,]
+for(j in 1:1000)
+{
+lab=sample(rand1,1,replace = TRUE)
+ran2=rand1[label==lab,]
+ran = rbind(ran,ran2)
+}
+X = rand1[,1]
+Y= rand1[,2]
+alpha[j] = (var(Y)-cov(X,Y))/(var(X)+var(Y)-2*cov(X,Y))
+
+rand1[sample(c(1:100),100,replace=TRUE),]
+sample(c(1:100),100,replace=TRUE)
+```
+
+
+```{r}
+mean(alpha)
+```
+
+```{r}
+var(alpha)
+```
+
+```{r}
+sd(alpha)
+sqrt(var(alphainstall.packages('rJava')))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
