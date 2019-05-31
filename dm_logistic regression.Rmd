@@ -1,0 +1,167 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+#导入数据
+```{r}
+d <- read.csv("~/Desktop/data mining/hmeq.csv",na.strings="")
+View(d)
+```
+
+#筛空值
+```{r}
+dc =  d[complete.cases(d),]
+dim(d)
+dim(dc)
+```
+
+
+#筛异常值
+
+##自定义函数midst
+```{r}
+mdist = function(x){
+    t = as.matrix(x)
+    p = dim(t)[2]
+    m = apply(t,2,mean)
+    s = var(t)
+    return(mahalanobis(t,m,s))
+}
+```
+
+
+```{r}
+mdc = mdist(dc)
+```
+报错原因：non-numeric，部分变量非数值（reason，job）
+
+```{r}
+mdc = mdist(dc[,-c(1,5,6)])
+```
+
+```{r}
+length(mdc)
+```
+
+##拆数据：y=1, y=0
+```{r}
+dc1 = dc[dc$BAD == 1,]
+dc0 = dc[dc$BAD == 0,]
+```
+
+
+```{r}
+mdc1 = mdist(dc1[,-c(1,5,6)])
+mdc0 = mdist(dc0[,-c(1,5,6)])
+```
+
+```{r}
+dim(dc1)
+dim(dc0)
+```
+
+```{r}
+summary(mdc1)
+summary(mdc0)
+```
+
+```{r}
+c = qchisq(0.99,10) #去掉1，5，6列
+c
+```
+
+```{r}
+x1 = dc1[mdc1 < c,]
+x0 = dc0[mdc0 < c,]
+dim(x1)
+dim(x0)
+```
+
+##清理过的数据,合并拆分的数据
+```{r}
+x = rbind(x0,x1)
+dim(x)
+View(x)
+```
+
+#逻辑回归
+##回归
+```{r}
+lg.fit = glm(BAD~.,data = x,family = binomial)
+```
+
+```{r}
+summary(lg.fit$fitted.values)
+```
+
+```{r}
+lg.fit
+```
+
+##预测
+```{r}
+pred1 = predict(lg.fit,type = "response")
+```
+
+```{r}
+pred1 - lg.fit$fitted.values
+```
+
+#结果
+##pred1
+###以0.5为分界线，把大于0.5赋值为1，小于0.5赋值为0
+```{r}
+pred1[pred1 > 0.5] <- 1
+pred1[pred1 < 0.5] <- 0
+```
+
+###结果,混淆矩阵
+```{r}
+s1 = table(pred1,x$BAD)
+s1
+```
+
+##pred2
+```{r}
+pred2 = predict(lg.fit,type = "response")
+```
+
+###以0.1为分界线，把大于0.1赋值为1，小于0.1赋值为0
+```{r}
+pred2[pred2 > 0.1] <- 1
+pred2[pred2 < 0.1] <- 0
+```
+
+###结果,混淆矩阵
+```{r}
+s2 = table(pred2,x$BAD)
+s2
+```
+
+#误差计算
+
+```{r}
+error1 = (s1[1]+s1[4])/sum(s1)
+error2 = (s2[1]+s2[4])/sum(s2)
+```
+
+
+
+
+
+
